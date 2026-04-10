@@ -1,7 +1,11 @@
 //PadiGuard AI: Detection Agent (The Eyes)
 
-const { generate } = require('@genkit-ai/ai');
-const { gemini20Flash } = require('@genkit-ai/googleai');
+const { genkit } = require('genkit');
+const { vertexAI, gemini20Flash } = require('@genkit-ai/google-genai');
+
+const ai = genkit({
+  plugins: [vertexAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY })],
+});
 
 const DETECTION_AGENT_PROMPT = `
 ROLE: Senior Rice Pathologist (PadiGuard AI Detection Agent)
@@ -25,32 +29,32 @@ const LOCATION = 'global';
 /**
  * The "Bridge" Tool: This tells Gemini HOW to search your PDFs.
  */
-const querySovereignRAG = {
-  name: 'querySovereignRAG',
-  description: 'Lookup Malaysian agricultural guidelines and rice disease symptoms from verified PDFs.',
-  // Note: In Day 3, we will add the actual retrieval logic inside here.
-};
+const querySovereignRAG = ai.defineTool(
+  {
+    name: 'querySovereignRAG',
+    description: 'Lookup Malaysian agricultural guidelines and rice disease symptoms from verified PDFs.',
+  },
+  async () => {
+    // Note: In Day 3, we will add the actual retrieval logic inside here.
+    return "No sovereign data available yet.";
+  }
+);
 
 /**
  * Main function to diagnose plant health
  */
 const diagnosePlant = async (imageUrl) => {
-  const response = await generate({
+  const response = await ai.generate({
     model: gemini20Flash,
     tools: [querySovereignRAG], // THIS IS CRITICAL: Hand the tool to the agent!
-    history: [
-      {
-        role: 'system',
-        content: [{ text: DETECTION_AGENT_PROMPT }],
-      },
-    ],
+    system: DETECTION_AGENT_PROMPT,
     prompt: [
       { text: "Analyze this padi plant image and provide a diagnosis based on our Sovereign RAG data." },
       { media: { url: imageUrl, contentType: 'image/jpeg' } },
     ],
   });
 
-  return response.text();
+  return response.text;
 };
 
 // Export for the Swarm Orchestrator
