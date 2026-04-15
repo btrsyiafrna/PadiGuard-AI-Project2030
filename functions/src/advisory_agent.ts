@@ -6,7 +6,7 @@ const ai = genkit({ plugins: [googleAI()] });
 const ADVISORY_PROMPT = `
 ROLE: Senior Agricultural Consultant (PadiGuard Advisor).
 MISSION: Convert technical diagnosis into a localized "Action Plan" for Malaysian farmers.
-GUIDELINES: Follow NAIO Padi standards. Keep advice practical, safe, and in Bahasa Melayu.
+GUIDELINES: Always prioritize solutions from the NAIO Padi Guidelines retrieved from our Sovereign RAG database. Keep advice practical, safe, and in Bahasa Melayu.
 `;
 
 export const createAdvice = async (diagnosis: string | any) => {
