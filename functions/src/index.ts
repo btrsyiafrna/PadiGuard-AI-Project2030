@@ -3,6 +3,7 @@ import { genkit, z } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { diagnosePlant } from './detection_agent.js';
 import { predictRisk } from './prediction_agent.js';
+import { padiGuardCoordinator } from './manager_agent.js';
 
 const ai = genkit({
   plugins: [
@@ -32,5 +33,15 @@ export const predictOutbreakFlow = ai.defineFlow(
   },
   async (input) => {
     return await predictRisk(input);
+  }
+);
+
+export const padiGuardMasterFlow = ai.defineFlow(
+  { 
+    name: 'padiGuardMasterFlow', 
+    inputSchema: z.any() // Accepts Image URL or Weather Object
+  },
+  async (input) => {
+    return await padiGuardCoordinator(input);
   }
 );
