@@ -1,37 +1,36 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * import {onCall} from "firebase-functions/v2/https";
- * import {onDocumentWritten} from "firebase-functions/v2/firestore";
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
-
-import { setGlobalOptions } from "firebase-functions";
-import { defineSecret } from "firebase-functions/params";
+import 'dotenv/config';
 import { genkit, z } from 'genkit';
-import { vertexAI } from '@genkit-ai/google-genai';
-
-// @ts-ignore
+import { googleAI } from '@genkit-ai/google-genai';
 import { diagnosePlant } from './detection_agent.js';
-
-const apiKey = defineSecret("GOOGLE_GENAI_API_KEY");
-
-console.log('DEBUG: API KEY exists?', !!process.env.GOOGLE_GENAI_API_KEY);
+import { predictRisk } from './prediction_agent.js';
 
 const ai = genkit({
-  plugins: [vertexAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY })],
+  plugins: [
+    // Pass the API Key explicitly to the plugin
+    googleAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY }),
+  ],
 });
 
-setGlobalOptions({ maxInstances: 10 });
-
-export const diagnoseFlow = ai.defineFlow(
+export const diagnosePlantFlow = ai.defineFlow(
   {
     name: 'diagnosePlantFlow',
     inputSchema: z.string(),
-    outputSchema: z.string(),
   },
-  async (imageUrl: string) => {
+  async (imageUrl) => {
     return await diagnosePlant(imageUrl);
+  }
+);
+
+export const predictOutbreakFlow = ai.defineFlow(
+  {
+    name: 'predictOutbreakFlow',
+    inputSchema: z.object({
+      temp: z.number(),
+      humidity: z.number(),
+      location: z.string(),
+    }),
+  },
+  async (input) => {
+    return await predictRisk(input);
   }
 );

@@ -1,0 +1,10 @@
+{
+  "name": "padiguard-ai",
+  "version": "1.0.0",
+  "description": "PadiGuard AI root project",
+  "scripts": {
+    "genkit:start": "npm run genkit:start --prefix functions",
+    "start": "npm run genkit:start --prefix functions",
+    "deploy": "firebase deploy"
+  }
+}

@@ -1,7 +1,7 @@
 //PadiGuard AI: Detection Agent (The Eyes)
 
-const { genkit } = require('genkit');
-const { vertexAI, gemini20Flash } = require('@genkit-ai/google-genai');
+import { genkit } from 'genkit';
+import { vertexAI } from '@genkit-ai/google-genai';
 
 const ai = genkit({
   plugins: [vertexAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY })],
@@ -22,14 +22,14 @@ SOVEREIGNTY RULE: Do not suggest Western pesticides. Only suggest MARDI/NAIO-app
 `;
 
 // Configuration (IDs are pasted here as you mentioned)
-const DATA_STORE_ID = 'padiguard-knowledge-engine_1775389438783'; 
-const PROJECT_ID = 'myai-padiguard-ai-2030';
-const LOCATION = 'global';
+// const DATA_STORE_ID = 'padiguard-knowledge-engine_1775389438783'; 
+// const PROJECT_ID = 'myai-padiguard-ai-2030';
+// const LOCATION = 'global';
 
 /**
  * The "Bridge" Tool: This tells Gemini HOW to search your PDFs.
  */
-const querySovereignRAG = ai.defineTool(
+export const querySovereignRAG = ai.defineTool(
   {
     name: 'querySovereignRAG',
     description: 'Lookup Malaysian agricultural guidelines and rice disease symptoms from verified PDFs.',
@@ -43,9 +43,9 @@ const querySovereignRAG = ai.defineTool(
 /**
  * Main function to diagnose plant health
  */
-const diagnosePlant = async (imageUrl) => {
+export const diagnosePlant = async (imageUrl: string) => {
   const response = await ai.generate({
-    model: gemini20Flash,
+    model: vertexAI.model('gemini-1.5-flash'),
     tools: [querySovereignRAG], // THIS IS CRITICAL: Hand the tool to the agent!
     system: DETECTION_AGENT_PROMPT,
     prompt: [
@@ -56,6 +56,3 @@ const diagnosePlant = async (imageUrl) => {
 
   return response.text;
 };
-
-// Export for the Swarm Orchestrator
-module.exports = { diagnosePlant, querySovereignRAG };
