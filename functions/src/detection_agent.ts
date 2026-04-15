@@ -1,11 +1,7 @@
 //PadiGuard AI: Detection Agent (The Eyes)
 
-import { genkit } from 'genkit';
-import { vertexAI } from '@genkit-ai/google-genai';
-
-const ai = genkit({
-  plugins: [vertexAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY })],
-});
+import { ai } from './genkit.js';
+import { googleAI } from '@genkit-ai/google-genai';
 
 const DETECTION_AGENT_PROMPT = `
 ROLE: Senior Rice Pathologist (PadiGuard AI Detection Agent)
@@ -45,7 +41,7 @@ export const querySovereignRAG = ai.defineTool(
  */
 export const diagnosePlant = async (imageUrl: string) => {
   const response = await ai.generate({
-    model: vertexAI.model('gemini-1.5-flash'),
+    model: googleAI.model('gemini-1.5-flash'),
     tools: [querySovereignRAG], // THIS IS CRITICAL: Hand the tool to the agent!
     system: DETECTION_AGENT_PROMPT,
     prompt: [

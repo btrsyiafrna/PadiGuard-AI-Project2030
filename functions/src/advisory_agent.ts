@@ -1,7 +1,5 @@
-import { genkit } from 'genkit';
+import { ai } from './genkit.js';
 import { googleAI } from '@genkit-ai/google-genai';
-
-const ai = genkit({ plugins: [googleAI()] });
 
 const ADVISORY_PROMPT = `
 ROLE: Senior Agricultural Consultant (PadiGuard Advisor).

@@ -1,12 +1,8 @@
-import { genkit } from 'genkit';
+import { ai } from './genkit.js';
 import { googleAI } from '@genkit-ai/google-genai';
 import { SearchServiceClient } from '@google-cloud/discoveryengine';
 
 const searchClient = new SearchServiceClient();
-
-const ai = genkit({
-  plugins: [googleAI()],
-});
 
 const PREDICTION_PROMPT = `
 ROLE: Agricultural Data Scientist (PadiGuard AI Prediction).

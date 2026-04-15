@@ -1,16 +1,9 @@
 import 'dotenv/config';
-import { genkit, z } from 'genkit';
-import { googleAI } from '@genkit-ai/google-genai';
+import { z } from 'genkit';
+import { ai } from './genkit.js';
 import { diagnosePlant } from './detection_agent.js';
 import { predictRisk } from './prediction_agent.js';
 import { padiGuardCoordinator } from './manager_agent.js';
-
-const ai = genkit({
-  plugins: [
-    // Pass the API Key explicitly to the plugin
-    googleAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY }),
-  ],
-});
 
 export const diagnosePlantFlow = ai.defineFlow(
   {
