@@ -1,8 +1,6 @@
 import { ai } from './genkit.js';
 import { googleAI } from '@genkit-ai/google-genai';
-import { SearchServiceClient } from '@google-cloud/discoveryengine';
-
-const searchClient = new SearchServiceClient();
+import { querySovereignRetrieval } from './sovereign_rag.js';
 
 const PREDICTION_PROMPT = `
 ROLE: Agricultural Data Scientist (PadiGuard AI Prediction).
@@ -11,45 +9,14 @@ CONTEXT: High humidity (>80%) and temperatures between 25-30°C are peak conditi
 OUTPUT: Provide a Risk Score (%), the likely disease, and 3 pre-emptive steps in Bahasa Melayu.
 `;
 
-export const padiDiseaseRetrieverTool = ai.defineTool(
-  {
-    name: 'padiDiseaseRetriever',
-    description: 'Retrieves the latest Padi Disease Management guidelines from the RAG store.',
-  },
-  async () => {
-    const projectId = process.env.GCLOUD_PROJECT;
-    const dataStoreId = process.env.DATA_STORE_ID;
-    
-    if (!projectId || !dataStoreId) {
-      return 'Missing GCLOUD_PROJECT or DATA_STORE_ID environment variables.';
-    }
-
-    try {
-      const request = {
-        servingConfig: searchClient.projectLocationCollectionDataStoreServingConfigPath(
-          projectId, 'global', 'default_collection', dataStoreId, 'default_search'
-        ),
-        query: 'Padi Disease Management outbreaks',
-        pageSize: 3,
-      };
-
-      const [response] = await searchClient.search(request);
-      
-      const snippets = response.map(r => 
-        (r.document?.derivedStructData as any)?.snippets?.[0]?.snippet || 'No snippet available.'
-      );
-      
-      return snippets.join('\n\n');
-    } catch (e: any) {
-      console.error("Vector Search Error:", e);
-      return "Unable to retrieve guidelines.";
-    }
-  }
-);
-
+/**
+ * Anticipates the risk of Padi diseases based on weather data and Sovereign RAG context.
+ * @param weatherData An object containing local weather telemetry (e.g. Temp, Humidity).
+ * @returns A string containing the probabilistic risk score and preventive steps.
+ */
 export const predictRisk = async (weatherData: any) => {
   // Retrieve the latest guidelines BEFORE making the prediction
-  const guidelines = await padiDiseaseRetrieverTool({});
+  const guidelines = await querySovereignRetrieval({ query: 'Padi Disease Management outbreaks and conditions' });
 
   const response = await ai.generate({
     model: googleAI.model('gemini-1.5-flash'),
