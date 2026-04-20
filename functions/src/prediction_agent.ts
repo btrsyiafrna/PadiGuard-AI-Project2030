@@ -1,5 +1,5 @@
 import { ai } from './genkit.js';
-import { gemini15Flash } from '@genkit-ai/google-genai';
+import { googleAI } from '@genkit-ai/google-genai';
 import { querySovereignRetrieval } from './sovereign_rag.js';
 
 const PREDICTION_PROMPT = `
@@ -19,7 +19,7 @@ export const predictRisk = async (weatherData: any) => {
   const guidelines = await querySovereignRetrieval({ query: 'Padi Disease Management outbreaks and conditions' });
 
   const response = await ai.generate({
-    model: gemini15Flash,
+    model: googleAI.model('gemini-2.5-flash'),
     system: PREDICTION_PROMPT,
     prompt: `Analyze this weather data: ${JSON.stringify(weatherData)}. 
              
