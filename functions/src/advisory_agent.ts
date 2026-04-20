@@ -1,5 +1,5 @@
 import { ai } from './genkit.js';
-import { googleAI } from '@genkit-ai/google-genai';
+import { gemini15Flash } from '@genkit-ai/google-genai';
 import { querySovereignRetrieval } from './sovereign_rag.js';
 
 const ADVISORY_PROMPT = `
@@ -21,7 +21,7 @@ export const createAdvice = async (diagnosis: string | any) => {
   const diagnosisStr = typeof diagnosis === 'string' ? diagnosis : JSON.stringify(diagnosis);
 
   const response = await ai.generate({
-    model: googleAI.model('gemini-1.5-flash'),
+    model: gemini15Flash,
     tools: [querySovereignRetrieval],
     system: ADVISORY_PROMPT,
     prompt: [

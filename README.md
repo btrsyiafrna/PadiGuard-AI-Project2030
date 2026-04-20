@@ -81,3 +81,16 @@ Visit `localhost:3000` in your web browser. You will see the **Modern Agrotech**
 *   **Sovereign RAG Enforcement**: Uses Google Cloud Discovery Engine. No generic or unverified pesticides are suggested.
 *   **Strict Zod Input Validation**: Robust type safety in `index.ts` flows prevents bad data from reaching the LLMs.
 *   **Beautiful UI**: Tailwind-powered interface inspired by earthy, lush agricultural themes.
+
+## 📜 AI Disclosure & Ethical Compliance
+
+In accordance with the Hackathon Code of Conduct, we disclose the following regarding the development and operation of PadiGuard AI:
+
+### 1. AI-Generated Code & Assistance
+This project was developed with the assistance of AI coding tools, including **Google Gemini** and **Antigravity (AI Coding Agent)**. While AI assisted in boilerplate generation, UI component structure, and logic optimization, the overall architecture, prompt engineering for the 4-Agent Swarm, and Sovereign RAG integration were designed and implemented by the team.
+
+### 2. Responsible & Ethical AI
+*   **Bias Mitigation**: We address AI bias by using **Sovereign RAG**. Instead of relying on general LLM knowledge which may be Western-centric, all advisory outputs are grounded in official **MARDI** and Malaysian agricultural guidelines.
+*   **Privacy**: No personally identifiable information (PII) is required or stored. Analysis is performed on uploaded images of padi plants and localized weather data.
+*   **Transparency**: The system provides "Certainty Scores" and strictly avoids guessing if data is insufficient (Graceful Degradation), ensuring farmers receive reliable and non-harmful advice.
+*   **Accountability**: Every part of this codebase is understood by the team and can be defended during the judging process.

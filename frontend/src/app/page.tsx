@@ -1,63 +1,264 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import { UploadCloud, Thermometer, Droplets, MapPin, Send, AlertTriangle, Leaf, Activity } from "lucide-react";
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState<"image" | "weather">("image");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [base64Image, setBase64Image] = useState<string | null>(null);
+  const [weatherData, setWeatherData] = useState({ temp: 28, humidity: 85, location: "Kedah" });
+  
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<{ analysis: string, actionPlan: string, timestamp: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Create preview
+      const objectUrl = URL.createObjectURL(file);
+      setImagePreview(objectUrl);
+      
+      // Convert to base64 for API
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBase64Image(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleWeatherChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setWeatherData(prev => ({ ...prev, [name]: name === 'location' ? value : Number(value) }));
+  };
+
+  const DEMO_MODE = true;
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
+    // Mock Response for Pitching/Demo
+    const DUMMY_RESULT = {
+      analysis: "Diagnosis: Karah Padi (Rice Blast) dikesan.\nKeyakinan: 94%\n\nAnalisis visual menunjukkan bintik-bintik berbentuk berlian (spindle-shaped) dengan pusat berwarna kelabu pada helaian daun padi. Tahap jangkitan berada pada fasa vegetatif lewat, yang memerlukan tindakan segera untuk mengelakkan jangkitan pada tangkai padi (neck blast).",
+      actionPlan: "PELAN TINDAKAN RAG (Sovereign Advisor):\n\n1. KAWALAN KIMIA: Gunakan racun kulat sistemik seperti Benomyl, Tricyclazole, atau Azoxystrobin mengikut dos yang disyorkan oleh Jabatan Pertanian/MARDI.\n\n2. PENGURUSAN AIR DAN NUTRISI: Kurangkan penggunaan baja Nitrogen berlebihan buat sementara waktu dan pastikan pengairan sawah sentiasa mengalir (bukan bertakung statik) untuk mengurangkan kelembapan mikro di sekitar rumpun padi.\n\n3. SANITASI LADANG: Asingkan dan musnahkan (dengan cara membakar di tempat selamat) baki tanaman yang dijangkiti untuk mematikan spora kulat Magnaporthe oryzae sebelum ia merebak ke petak sawah berdekatan.",
+      timestamp: new Date().toISOString()
+    };
+
+    try {
+      if (activeTab === "image" && !base64Image) {
+        throw new Error("Sila muat naik gambar terlebih dahulu. (Please upload an image first.)");
+      }
+
+      if (DEMO_MODE) {
+        // Dramatic delay for recording realism
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setResult(DUMMY_RESULT);
+        return;
+      }
+
+      const payload = activeTab === "image" ? base64Image : weatherData;
+      
+      // Removed duplicate check here as it's now at the top
+
+      // Connecting to Genkit dev flow server
+      const response = await fetch("http://127.0.0.1:4000/api/runAction", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          key: "/flow/padiGuardMasterFlow",
+          input: payload
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server bermasalah (${response.status}). Sila pastikan Genkit berjalan di port 4000.`);
+      }
+
+      const data = await response.json();
+      setResult(data.result); // Genkit wraps return in `result`
+    } catch (err: any) {
+      setError(err.message || "Ralat tidak dijangka berlaku.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-stone-50 text-slate-800 font-sans selection:bg-emerald-200">
+      {/* Header */}
+      <header className="bg-emerald-800 text-white shadow-xl shadow-emerald-900/10 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+        <div className="max-w-5xl mx-auto px-6 py-8 relative">
+          <div className="flex items-center gap-3">
+            <Leaf className="w-10 h-10 text-emerald-400" />
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">PadiGuard AI</h1>
+              <p className="text-emerald-200 mt-1">Diagnosis Tumbuhan & Analisis Risiko Penyakit (Sovereign RAG)</p>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-6 py-12 grid md:grid-cols-12 gap-10">
+        
+        {/* Left Column: Input Form */}
+        <div className="md:col-span-5 space-y-6">
+          <div className="bg-white rounded-3xl p-6 shadow-sm border border-stone-200">
+            {/* Tabs */}
+            <div className="flex gap-2 p-1 bg-stone-100 rounded-2xl mb-8">
+              <button
+                onClick={() => setActiveTab("image")}
+                className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all flex justify-center items-center gap-2 ${
+                  activeTab === "image" ? "bg-white shadow-sm text-emerald-700" : "text-stone-500 hover:text-stone-700"
+                }`}
+              >
+                <Activity className="w-4 h-4" />
+                Diagnosis Imej
+              </button>
+              <button
+                onClick={() => setActiveTab("weather")}
+                className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all flex justify-center items-center gap-2 ${
+                  activeTab === "weather" ? "bg-white shadow-sm text-emerald-700" : "text-stone-500 hover:text-stone-700"
+                }`}
+              >
+                <Thermometer className="w-4 h-4" />
+                Ramalan Cuaca
+              </button>
+            </div>
+
+            {/* Content Form */}
+            {activeTab === "image" ? (
+              <div className="space-y-4">
+                <label className="block text-sm font-medium text-stone-700 mb-2">Muat Naik Gambar Daun Padi</label>
+                <div className="border-2 border-dashed border-emerald-200 rounded-2xl bg-emerald-50/50 p-8 text-center hover:bg-emerald-50 transition-colors relative group">
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleImageUpload}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="Preview" className="max-h-48 mx-auto rounded-lg shadow-sm" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm text-emerald-600 group-hover:scale-110 transition-transform">
+                        <UploadCloud className="w-8 h-8" />
+                      </div>
+                      <span className="text-emerald-700 font-medium">Klik atau seret gambar ke sini</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+               <div className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2 flex items-center gap-2">
+                    <Thermometer className="w-4 h-4 text-emerald-600" /> Suhu (°C)
+                  </label>
+                  <input 
+                    type="number" 
+                    name="temp"
+                    value={weatherData.temp}
+                    onChange={handleWeatherChange}
+                    className="w-full rounded-xl border-stone-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-stone-50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2 flex items-center gap-2">
+                    <Droplets className="w-4 h-4 text-blue-500" /> Kelembapan (%)
+                  </label>
+                  <input 
+                    type="number" 
+                    name="humidity"
+                    value={weatherData.humidity}
+                    onChange={handleWeatherChange}
+                    className="w-full rounded-xl border-stone-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-stone-50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2 flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-rose-500" /> Lokasi Sawah
+                  </label>
+                  <input 
+                    type="text" 
+                    name="location"
+                    value={weatherData.location}
+                    onChange={handleWeatherChange}
+                    className="w-full rounded-xl border-stone-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 p-3 bg-stone-50"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button 
+              onClick={handleSubmit}
+              disabled={loading}
+              className="mt-8 w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-emerald-600/30 transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <div className="w-6 h-6 border-4 border-white-300 border-t-white rounded-full animate-spin"></div>
+              ) : (
+                <>Hantar ke PadiGuard <Send className="w-5 h-5 ml-1" /></>
+              )}
+            </button>
+            
+            {error && (
+              <div className="mt-4 p-4 bg-rose-50 text-rose-700 rounded-xl flex gap-3 text-sm font-medium border border-rose-100">
+                <AlertTriangle className="w-5 h-5 shrink-0" />
+                <p>{error}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column: AI Response Pane */}
+        <div className="md:col-span-7 flex flex-col h-full">
+          <div className="bg-white rounded-3xl p-8 shadow-sm border border-stone-200 flex-1 flex flex-col">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-emerald-900 flex items-center gap-3">
+                <div className="w-2 h-8 bg-emerald-500 rounded-full"></div>
+                Laporan Analisis AI
+              </h2>
+            </div>
+
+            {!result ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-center px-10 text-stone-400">
+                <div className="w-24 h-24 bg-stone-50 rounded-full flex items-center justify-center mb-6">
+                  <Leaf className="w-10 h-10 opacity-20" />
+                </div>
+                <p>Sila masukkan gambar atau data cuaca untuk mendapatkan laporan analisis patologi dari PadiGuard Swarm.</p>
+              </div>
+            ) : (
+              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out text-sm md:text-base leading-relaxed">
+                
+                <div className="bg-stone-50 rounded-2xl p-6 border border-stone-100 transition-all hover:border-emerald-200">
+                  <h3 className="font-bold text-stone-800 mb-3 uppercase tracking-wider text-xs">Diagnosa Awalan (Detection/Prediction)</h3>
+                  <div className="text-stone-700 whitespace-pre-wrap">{result.analysis}</div>
+                </div>
+
+                <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-100 shadow-inner shadow-emerald-900/5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-4 opacity-5">
+                    <Activity className="w-32 h-32" />
+                  </div>
+                  <h3 className="font-bold text-emerald-800 mb-3 uppercase tracking-wider text-xs relative z-10">Pelan Tindakan RAG (PadiGuard Advisor)</h3>
+                  <div className="text-emerald-900 font-medium whitespace-pre-wrap relative z-10">{result.actionPlan}</div>
+                </div>
+                
+                <div className="flex justify-end">
+                  <span className="text-xs text-stone-400 bg-stone-100 px-3 py-1 rounded-full">
+                    Selesai pada: {new Date(result.timestamp).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </main>
     </div>

@@ -1,7 +1,7 @@
 //PadiGuard AI: Detection Agent (The Eyes)
 
 import { ai } from './genkit.js';
-import { googleAI } from '@genkit-ai/google-genai';
+import { gemini15Flash } from '@genkit-ai/google-genai';
 import { querySovereignRetrieval } from './sovereign_rag.js';
 
 const DETECTION_AGENT_PROMPT = `
@@ -26,7 +26,7 @@ SOVEREIGNTY RULE: Do not suggest Western pesticides. Only suggest MARDI/NAIO-app
  */
 export const diagnosePlant = async (imageUrl: string) => {
   const response = await ai.generate({
-    model: googleAI.model('gemini-1.5-flash'),
+    model: gemini15Flash,
     tools: [querySovereignRetrieval],
     system: DETECTION_AGENT_PROMPT,
     prompt: [
