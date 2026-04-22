@@ -57,7 +57,7 @@ export default function Home() {
       // Removed duplicate check here as it's now at the top
 
       // Connecting to Genkit dev flow server
-      const response = await fetch("http://127.0.0.1:4000/api/runAction", {
+      const response = await fetch("https://padiguard-backend-878147307907.asia-southeast1.run.app/padiGuardMasterFlow", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
