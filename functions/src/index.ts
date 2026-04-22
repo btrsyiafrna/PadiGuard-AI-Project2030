@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { z } from 'genkit';
+import { startFlowServer } from '@genkit-ai/express';
 import { ai } from './genkit.js';
 import { diagnosePlant } from './detection_agent.js';
 import { predictRisk } from './prediction_agent.js';
@@ -59,3 +60,11 @@ export const padiGuardMasterFlow = ai.defineFlow(
 
 // We need to export sovereign_rag as a tool? It is defined via ai.defineTool so Genkit already registers it via `import` but let's export it from index.ts to ensure Genkit index finds it.
 export { querySovereignRetrieval } from './sovereign_rag.js';
+
+// Start the flow server if this file is run directly or in a production environment
+if (process.env.NODE_ENV === 'production' || process.env.SERVE === 'true') {
+  startFlowServer({
+    flows: [diagnosePlantFlow, predictOutbreakFlow, padiGuardMasterFlow],
+    port: Number(process.env.PORT) || 8080,
+  });
+}

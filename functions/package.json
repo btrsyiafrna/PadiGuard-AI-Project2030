@@ -16,6 +16,7 @@
     "node": "24"
   },
   "dependencies": {
+    "@genkit-ai/express": "^1.32.0",
     "@genkit-ai/google-genai": "^1.31.0",
     "@google-cloud/discoveryengine": "^2.6.0",
     "dotenv": "^17.4.2",
