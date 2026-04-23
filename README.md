@@ -1,10 +1,17 @@
-# 🌱 PadiGuard AI - Project 2030
+# PadiGuard AI - Project 2030
 
-PadiGuard AI is a multi-agent diagnostic system designed to safeguard Malaysian rice yields. Built using Google's Genkit framework, Gemini 1.5 Flash, and Next.js, it employs a 4-Agent Swarm architecture to interpret visual, text, and telemetry data. 
+PadiGuard AI is a multi-agent diagnostic system designed to safeguard Malaysian rice yields. Built using Google's Genkit framework, Gemini 2.5 Flash, and Next.js, it employs a 4-Agent Swarm architecture to interpret visual, text, and telemetry data. 
 
 **Core Differentiator**: It heavily utilizes Sovereign RAG via Google Cloud Vector Search to ensure all diagnostic outputs and action plans strictly adhere to MARDI and Malaysian agricultural guidelines, eschewing generic or Western-centric advice.
 
-## 🏗 System Architecture
+## Live Demo (Hackathon Submission)
+
+**Access the PadiGuard AI here:**
+👉 [https://padiguard-frontend-878147307907.asia-southeast1.run.app](https://padiguard-frontend-878147307907.asia-southeast1.run.app)
+
+*(Note: The Next.js frontend and Genkit backend are deployed as microservices on Google Cloud Run for production-grade reliability.)*
+
+## System Architecture
 
 The core of the system is the **4-Agent Swarm**:
 1. **Manager Agent**: The central orchestrator routing requests and chaining responses.
@@ -20,7 +27,7 @@ graph TD
     Manager -.->|If Image| DetAgent[Detection Agent]
     Manager -.->|If Weather| PredAgent[Prediction Agent]
 
-    DetAgent <--> Gemini[Gemini 1.5 Flash Model]
+    DetAgent <--> Gemini[Gemini 2.5 Flash Model]
     PredAgent <--> Gemini
     
     DetAgent -->|RAG Tool| Sovereign[Sovereign RAG Data Store]
@@ -38,9 +45,9 @@ graph TD
     Manager -->|Final Result| Frontend
 ```
 
-## 🚀 Getting Started (Local Development)
+## Getting Started (Local Development)
 
-The frontend interfaces directly with the Genkit development server over HTTP for rapid testing.
+While the system is deployed on Cloud Run for judging, you can also run it locally:
 
 ### Prerequisites
 - Node.js 20+
@@ -76,13 +83,13 @@ npm run dev
 ```
 Visit `localhost:3000` in your web browser. You will see the **Modern Agrotech** interface and be able to test both the *Diagnosis Imej* and *Ramalan Cuaca* tabs.
 
-## ⚙️ Features
+## Features
 *   **Graceful Degradation**: If an uploaded image is blurry (Certainty Score < 70%), the Detection Agent politely responds in Bahasa Melayu, asking for a clearer photo.
 *   **Sovereign RAG Enforcement**: Uses Google Cloud Discovery Engine. No generic or unverified pesticides are suggested.
 *   **Strict Zod Input Validation**: Robust type safety in `index.ts` flows prevents bad data from reaching the LLMs.
 *   **Beautiful UI**: Tailwind-powered interface inspired by earthy, lush agricultural themes.
 
-## 📜 AI Disclosure & Ethical Compliance
+## AI Disclosure & Ethical Compliance
 
 In accordance with the Hackathon Code of Conduct, we disclose the following regarding the development and operation of PadiGuard AI:
 
@@ -93,4 +100,3 @@ This project was developed with the assistance of AI coding tools, including **G
 *   **Bias Mitigation**: We address AI bias by using **Sovereign RAG**. Instead of relying on general LLM knowledge which may be Western-centric, all advisory outputs are grounded in official **MARDI** and Malaysian agricultural guidelines.
 *   **Privacy**: No personally identifiable information (PII) is required or stored. Analysis is performed on uploaded images of padi plants and localized weather data.
 *   **Transparency**: The system provides "Certainty Scores" and strictly avoids guessing if data is insufficient (Graceful Degradation), ensuring farmers receive reliable and non-harmful advice.
-*   **Accountability**: Every part of this codebase is understood by the team and can be defended during the judging process.

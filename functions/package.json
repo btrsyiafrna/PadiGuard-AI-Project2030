@@ -19,6 +19,7 @@
     "@genkit-ai/express": "^1.32.0",
     "@genkit-ai/google-genai": "^1.31.0",
     "@google-cloud/discoveryengine": "^2.6.0",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "firebase-admin": "^13.6.0",
@@ -26,6 +27,7 @@
     "genkit": "^1.31.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@typescript-eslint/eslint-plugin": "^5.12.0",
     "@typescript-eslint/parser": "^5.12.0",
     "eslint": "^8.9.0",
